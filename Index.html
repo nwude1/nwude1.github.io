@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Nwude Emeka’s Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 20px; margin: 0; }
+    header { display: flex; align-items: center; margin-bottom: 20px; }
+    header img { width: 50px; height: 50px; border-radius: 50%; margin-right: 10px; }
+    .page { display: none; }
+    .active { display: block; }
+    button { margin: 10px 5px 0 0; padding: 10px; font-size: 16px; }
+    #consentBox {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #333; color: white;
+      padding: 15px; text-align: center;
+      display: none;
+    }
+    #consentBox button {
+      background: #4CAF50; color: white; border: none;
+      padding: 10px 20px; font-size: 16px;
+      margin-left: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="YOUR_PHOTO_URL_HERE" alt="My Photo">
+    <h1>Nwude Emeka’s Tracker</h1>
+  </header>
+
+  <p id="greeting">Welcome!</p>
+  <p id="lastPageInfo"></p>
+  <p id="clickInfo"></p>
+  <p id="timeInfo"></p>
+
+  <div class="page active" id="home"><h2>🏠 Home</h2><p>First section!</p></div>
+  <div class="page" id="about"><h2>ℹ️ About</h2><p>About section!</p></div>
+  <div class="page" id="contact"><h2>📞 Contact</h2><p>Contact section!</p></div>
+
+  <button onclick="switchPage('home')">Home</button>
+  <button onclick="switchPage('about')">About</button>
+  <button onclick="switchPage('contact')">Contact</button>
+  <button onclick="resetAll()">Reset All</button>
+
+  <div id="consentBox">
+    We use cookies to track visits and interaction.
+    <button onclick="acceptCookies()">Accept</button>
+  </div>
+
+  <script>
+    function setCookie(n, v, d) {
+      let e = "";
+      if (d) {
+        let dt = new Date();
+        dt.setTime(dt.getTime() + d*24*60*60*1000);
+        e = ";expires=" + dt.toUTCString();
+      }
+      document.cookie = n + "=" + encodeURIComponent(v) + e + ";path=/";
+    }
+    function getCookie(n) {
+      let c = document.cookie.split("; ");
+      for (let k of c) {
+        let p = k.split("=");
+        if (p[0] === n) return decodeURIComponent(p[1]);
+      }
+      return null;
+    }
+
+    if (!getCookie("consent")) {
+      document.getElementById("consentBox").style.display = "block";
+    }
+    function acceptCookies() {
+      setCookie("consent", "yes", 365);
+      document.getElementById("consentBox").style.display = "none";
+    }
+
+    let v = parseInt(getCookie("visitCount") || "0")+1;
+    setCookie("visitCount", v, 30);
+    document.getElementById("greeting").innerText =
+      v===1 ? "Welcome for the first time!" : `Welcome back! You've visited ${v} times.`;
+
+    let lp = getCookie("lastPage");
+    if (lp) document.getElementById("lastPageInfo").innerText = "Last page: " + lp;
+    function switchPage(p) {
+      document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+      document.getElementById(p).classList.add("active");
+      setCookie("lastPage", p, 30);
+      document.getElementById("lastPageInfo").innerText = "Now on: " + p;
+    }
+
+    let clicks = parseInt(getCookie("clickCount") || "0");
+    document.body.addEventListener("click", () => {
+      clicks++;
+      setCookie("clickCount", clicks, 30);
+      document.getElementById("clickInfo").innerText = `Clicks: ${clicks}`;
+    });
+
+    let t = parseInt(getCookie("timeSpent") || "0");
+    setInterval(() => {
+      t++;
+      setCookie("timeSpent", t, 30);
+      document.getElementById("timeInfo").innerText = `Time: ${t}s`;
+    }, 1000);
+
+    function resetAll() {
+      ["visitCount","lastPage","clickCount","timeSpent","consent"].forEach(c => setCookie(c, "", -1));
+      location.reload();
+    }
+  </script>
+</body>
+</html>
